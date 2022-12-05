@@ -17,10 +17,9 @@ fn main() {
 
     let lines = read_lines(".//src//input.txt").unwrap();
     let mut top_scores: Vec<usize> = vec![0; TOP_POSITIONS];
+    let mut current_score = 0;
 
     for line_result in lines {
-        let mut current_score = 0;
-
         if let Ok(line) = line_result {
             if !line.is_empty() {
                 current_score += line.parse::<usize>().unwrap();
