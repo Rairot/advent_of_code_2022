@@ -41,6 +41,39 @@ impl Hand {
             },
         }
     }
+
+    fn rock_paper_scissors_by_outcome(&self, outcome: GameResult) -> u32 {
+        match self {
+            Hand::Rock => match outcome {
+                GameResult::Win => Hand::Paper as u32 + outcome as u32,
+                GameResult::Lose => Hand::Scissors as u32 + outcome as u32,
+                GameResult::Draw => Hand::Rock as u32 + outcome as u32,
+            },
+            Hand::Paper => match outcome {
+                GameResult::Win => Hand::Scissors as u32 + outcome as u32,
+                GameResult::Lose => Hand::Rock as u32 + outcome as u32,
+                GameResult::Draw => Hand::Paper as u32 + outcome as u32,
+            },
+            Hand::Scissors => match outcome {
+                GameResult::Win => Hand::Rock as u32 + outcome as u32,
+                GameResult::Lose => Hand::Paper as u32 + outcome as u32,
+                GameResult::Draw => Hand::Scissors as u32 + outcome as u32,
+            },
+        }
+    }
+}
+
+impl TryFrom<char> for GameResult {
+    type Error = anyhow::Error;
+
+    fn try_from(value: char) -> core::result::Result<Self, anyhow::Error> {
+        match value.to_ascii_uppercase() {
+            'X' => Ok(GameResult::Lose),
+            'Y' => Ok(GameResult::Draw),
+            'Z' => Ok(GameResult::Win),
+            _ => Err(anyhow!("Unknown GameResult character")),
+        }
+    }
 }
 
 impl TryFrom<char> for Hand {
@@ -59,18 +92,23 @@ impl TryFrom<char> for Hand {
 fn main() -> Result<()> {
     let lines = read_lines(".//src//input.txt").unwrap();
 
-    let mut total_score = 0;
+    let mut total_score_part1 = 0;
+    let mut total_score_part2 = 0;
 
     for line_result in lines {
         if let Ok(line) = line_result {
             let opponent: Hand = line.chars().nth(0).expect("Missing hand one").try_into()?;
             let player: Hand = line.chars().nth(2).expect("Missing hand two").try_into()?;
+            let outcome: GameResult = line.chars().nth(2).expect("Missing hand two").try_into()?;
 
-            let (_, points) = player.rock_paper_scissors(opponent);
-            total_score += points
+            let (_, part1_points) = player.rock_paper_scissors(opponent);
+            let part2_points = opponent.rock_paper_scissors_by_outcome(outcome);
+            total_score_part1 += part1_points;
+            total_score_part2 += part2_points;
         }
     }
-    println!("Total score: {total_score}");
+    println!("Total score part 1: {total_score_part1}");
+    println!("Total score part 2: {total_score_part2}");
 
     Ok(())
 }
